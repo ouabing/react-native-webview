@@ -44,6 +44,7 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.common.build.ReactBuildConfig;
 import com.facebook.react.module.annotations.ReactModule;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.UIManagerModule;
@@ -549,6 +550,9 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
           mWebView.setVisibility(View.GONE);
 
           mReactContext.addLifecycleEventListener(this);
+          WritableMap eventData = Arguments.createMap();
+          reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                  .emit("WebViewPlayVideoFullScreenStart", eventData);
         }
 
         @Override
@@ -571,6 +575,9 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
           }
 
           mReactContext.removeLifecycleEventListener(this);
+          WritableMap eventData = Arguments.createMap();
+          reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                  .emit("WebViewPlayVideoFullScreenEnd", eventData);
         }
       };
       webView.setWebChromeClient(mWebChromeClient);
