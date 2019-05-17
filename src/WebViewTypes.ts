@@ -391,6 +391,8 @@ export interface IOSWebViewProps extends WebViewSharedProps {
    */
   allowsLinkPreview?: boolean;
 
+  allowsFullscreenVideo?: boolean;
+
   /**
    * Set true if shared cookies from HTTPCookieStorage should used for every load request in the
    * `RNCWKWebView`. The default value is `false`.
