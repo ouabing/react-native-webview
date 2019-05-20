@@ -18,6 +18,7 @@ export interface WebViewCommands {
   postMessage: Function;
   injectJavaScript: Function;
   loadUrl: Function;
+  exitFullScreen: Function;
 }
 
 export interface CustomUIManager extends UIManagerStatic {
