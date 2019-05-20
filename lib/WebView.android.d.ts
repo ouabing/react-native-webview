@@ -19,6 +19,7 @@ declare class WebView extends React.Component<AndroidWebViewProps, State> {
     static isFileUploadSupported: () => Promise<any>;
     state: State;
     webViewRef: React.RefObject<NativeWebViewAndroid>;
+    exitFullScreen: () => void;
     getCommands: () => import("./WebViewTypes").WebViewCommands;
     goForward: () => void;
     goBack: () => void;
