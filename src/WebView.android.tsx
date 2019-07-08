@@ -70,6 +70,14 @@ class WebView extends React.Component<AndroidWebViewProps, State> {
 
   getCommands = () => getViewManagerConfig('RNCWebView').Commands;
 
+  exitFullScreen = () => {
+    UIManager.dispatchViewManagerCommand(
+      this.getWebViewHandle(),
+      this.getCommands().exitFullScreen,
+      null,
+    );
+  };
+
   goForward = () => {
     UIManager.dispatchViewManagerCommand(
       this.getWebViewHandle(),

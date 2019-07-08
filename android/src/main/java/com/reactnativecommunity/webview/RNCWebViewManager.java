@@ -31,6 +31,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.views.scroll.ScrollEvent;
 import com.facebook.react.views.scroll.ScrollEventType;
 import com.facebook.react.views.scroll.OnScrollDispatchHelper;
@@ -105,6 +106,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
   public static final int COMMAND_POST_MESSAGE = 5;
   public static final int COMMAND_INJECT_JAVASCRIPT = 6;
   public static final int COMMAND_LOAD_URL = 7;
+  public static final int COMMAND_EXIT_FULL_SCREEN = 8;
   protected static final String REACT_CLASS = "RNCWebView";
   protected static final String HTML_ENCODING = "UTF-8";
   protected static final String HTML_MIME_TYPE = "text/html";
@@ -461,7 +463,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
   @Override
   public @Nullable
   Map<String, Integer> getCommandsMap() {
-    return MapBuilder.of(
+    Map map = MapBuilder.of(
       "goBack", COMMAND_GO_BACK,
       "goForward", COMMAND_GO_FORWARD,
       "reload", COMMAND_RELOAD,
@@ -470,6 +472,8 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
       "injectJavaScript", COMMAND_INJECT_JAVASCRIPT,
       "loadUrl", COMMAND_LOAD_URL
     );
+    map.put("exitFullScreen", COMMAND_EXIT_FULL_SCREEN);
+    return map;
   }
 
   @Override
@@ -517,6 +521,12 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
         }
         root.loadUrl(args.getString(0));
         break;
+      case COMMAND_EXIT_FULL_SCREEN:
+        WebChromeClient client = root.getWebChromeClient();
+        if (client != null) {
+          client.onHideCustomView();
+        }
+        break;
     }
   }
 
@@ -553,6 +563,9 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
           getRootView().addView(mVideoView, FULLSCREEN_LAYOUT_PARAMS);
           mWebView.setVisibility(View.GONE);
 
+          WritableMap eventData = Arguments.createMap();
+          reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+              .emit("WebViewPlayVideoFullScreenStart", eventData);
           mReactContext.addLifecycleEventListener(this);
         }
 
@@ -575,6 +588,9 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
             mReactContext.getCurrentActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
           }
 
+          WritableMap eventData = Arguments.createMap();
+          reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+              .emit("WebViewPlayVideoFullScreenEnd", eventData);
           mReactContext.removeLifecycleEventListener(this);
         }
       };

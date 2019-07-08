@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 
 export interface WebViewCommands {
+  exitFullScreen: Function;
   goForward: Function;
   goBack: Function;
   reload: Function;
