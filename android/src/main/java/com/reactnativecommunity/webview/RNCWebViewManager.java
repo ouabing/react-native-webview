@@ -522,9 +522,11 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
         root.loadUrl(args.getString(0));
         break;
       case COMMAND_EXIT_FULL_SCREEN:
-        WebChromeClient client = root.getWebChromeClient();
-        if (client != null) {
-          client.onHideCustomView();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+          WebChromeClient client = root.getWebChromeClient();
+          if (client != null) {
+            client.onHideCustomView();
+          }
         }
         break;
     }
