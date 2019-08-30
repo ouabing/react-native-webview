@@ -36,11 +36,13 @@ This document lays out the current public properties and methods for the React N
 - [`bounces`](Reference.md#bounces)
 - [`overScrollMode`](Reference.md#overscrollmode)
 - [`contentInset`](Reference.md#contentinset)
+- [`contentInsetAdjustmentBehavior`](Reference.md#contentInsetAdjustmentBehavior)
 - [`dataDetectorTypes`](Reference.md#datadetectortypes)
 - [`scrollEnabled`](Reference.md#scrollenabled)
 - [`directionalLockEnabled`](Reference.md#directionalLockEnabled)
 - [`geolocationEnabled`](Reference.md#geolocationenabled)
 - [`allowUniversalAccessFromFileURLs`](Reference.md#allowUniversalAccessFromFileURLs)
+- [`allowingReadAccessToURL`](Reference.md#allowingReadAccessToURL)
 - [`useWebKit`](Reference.md#usewebkit)
 - [`url`](Reference.md#url)
 - [`html`](Reference.md#html)
@@ -613,11 +615,21 @@ Sets the user-agent for the `WebView`. This will only work for iOS if you are us
 
 ### `applicationNameForUserAgent`
 
-Append to the existing user-agent. Available on iOS WKWebView only. Setting `userAgent` will override this.
+Append to the existing user-agent. This will only work for iOS if you are using WKWebView, not UIWebView. Setting `userAgent` will override this.
 
 | Type   | Required | Platform      |
 | ------ | -------- | ------------- |
-| string | No       | iOS WKWebView |
+| string | No       | Android, iOS WKWebView |
+
+```jsx
+<WebView
+  source={{ uri: 'https://facebook.github.io/react-native' }}
+  applicationNameForUserAgent={"DemoApp/1.1.0"}
+/>
+// Resulting User-Agent will look like:
+// Mozilla/5.0 (Linux; Android 8.1.0; Android SDK built for x86 Build/OSM1.180201.021; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.98 Mobile Safari/537.36 DemoApp/1.1.0
+// Mozilla/5.0 (iPhone; CPU iPhone OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 DemoApp/1.1.0
+```
 
 ### `allowsFullscreenVideo`
 
@@ -676,6 +688,23 @@ The amount by which the web view content is inset from the edges of the scroll v
 | Type                                                               | Required | Platform |
 | ------------------------------------------------------------------ | -------- | -------- |
 | object: {top: number, left: number, bottom: number, right: number} | No       | iOS      |
+
+---
+
+### `contentInsetAdjustmentBehavior`
+
+This property specifies how the safe area insets are used to modify the content area of the scroll view. The default value of this property is "never". Available on iOS 11 and later. Defaults to `never`.
+
+Possible values:
+
+- `automatic`
+- `scrollableAxes`
+- `never`
+- `always`
+
+| Type   | Required | Platform |
+| ------ | -------- | -------- |
+| string | No       | iOS      |
 
 ---
 
@@ -767,6 +796,16 @@ Boolean that sets whether JavaScript running in the context of a file scheme URL
 
 ---
 
+### `allowingReadAccessToURL`
+
+A String value that indicates which URLs the WebView's file can then reference in scripts, AJAX requests, and CSS imports. This is only used in `RNCWKWebView` for WebViews that are loaded with a source.uri set to a `'file://'` URL. If not provided, the default is to only allow read access to the URL provided in source.uri itself.
+
+| Type   | Required | Platform      |
+| ------ | -------- | ------------- |
+| string | No       | iOS WKWebView |
+
+---
+
 ### `useWebKit`
 
 If true, use WKWebView instead of UIWebView.
@@ -831,9 +870,9 @@ If true, this will be able horizontal swipe gestures when using the WKWebView. T
 
 Does not store any data within the lifetime of the WebView.
 
-| Type    | Required | Platform      |
-| ------- | -------- | ------------- |
-| boolean | No       | iOS WKWebView |
+| Type    | Required | Platform               |
+| ------- | -------- | ---------------------- |
+| boolean | No       | Android, iOS WKWebView |
 
 ---
 

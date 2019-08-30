@@ -19,6 +19,7 @@ export interface WebViewCommands {
   postMessage: Function;
   injectJavaScript: Function;
   loadUrl: Function;
+  requestFocus: Function;
 }
 
 export interface CustomUIManager extends UIManagerStatic {
@@ -213,6 +214,7 @@ export type OnShouldStartLoadWithRequest = (
 
 export interface CommonNativeWebViewProps extends ViewProps {
   cacheEnabled?: boolean;
+  incognito?: boolean;
   injectedJavaScript?: string;
   mediaPlaybackRequiresUserAction?: boolean;
   messagingEnabled: boolean;
@@ -230,6 +232,10 @@ export interface CommonNativeWebViewProps extends ViewProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   source: any;
   userAgent?: string;
+  /**
+   * Append to the existing user-agent. Overriden if `userAgent` is set.
+   */
+  applicationNameForUserAgent?: string;
 }
 
 export interface AndroidNativeWebViewProps extends CommonNativeWebViewProps {
@@ -249,17 +255,18 @@ export interface AndroidNativeWebViewProps extends CommonNativeWebViewProps {
 }
 
 export interface IOSNativeWebViewProps extends CommonNativeWebViewProps {
+  allowingReadAccessToURL?: string;
   allowsBackForwardNavigationGestures?: boolean;
   allowsInlineMediaPlayback?: boolean;
   allowsLinkPreview?: boolean;
   automaticallyAdjustContentInsets?: boolean;
   bounces?: boolean;
   contentInset?: ContentInsetProp;
+  contentInsetAdjustmentBehavior?: 'automatic'| 'scrollableAxes' | 'never' | 'always';
   dataDetectorTypes?: DataDetectorTypes | ReadonlyArray<DataDetectorTypes>;
   decelerationRate?: number;
   directionalLockEnabled?: boolean;
   hideKeyboardAccessoryView?: boolean;
-  incognito?: boolean;
   pagingEnabled?: boolean;
   scrollEnabled?: boolean;
   useSharedProcessPool?: boolean;
@@ -321,6 +328,13 @@ export interface IOSWebViewProps extends WebViewSharedProps {
   automaticallyAdjustContentInsets?: boolean;
 
   /**
+   * This property specifies how the safe area insets are used to modify the
+   * content area of the scroll view. The default value of this property is
+   * "never". Available on iOS 11 and later.
+   */
+  contentInsetAdjustmentBehavior?: 'automatic'| 'scrollableAxes' | 'never' | 'always'
+
+  /**
    * The amount by which the web view content is inset from the edges of
    * the scroll view. Defaults to {top: 0, left: 0, bottom: 0, right: 0}.
    * @platform ios
@@ -380,12 +394,6 @@ export interface IOSWebViewProps extends WebViewSharedProps {
   useSharedProcessPool?: boolean;
 
   /**
-   * Append to the existing user-agent. Overriden if `userAgent` is set.
-   * @platform ios
-   */
-  applicationNameForUserAgent?: string;
-
-  /**
    * The custom user agent string.
    */
   userAgent?: string;
@@ -426,6 +434,18 @@ export interface IOSWebViewProps extends WebViewSharedProps {
    * @platform ios
    */
   keyboardDisplayRequiresUserAction?: boolean;
+
+  /**
+   * A String value that indicates which URLs the WebView's file can then
+   * reference in scripts, AJAX requests, and CSS imports. This is only used
+   * in `RNCWKWebView` for WebViews that are loaded with a source.uri set to a
+   * `'file://'` URL.
+   * 
+   * If not provided, the default is to only allow read access to the URL
+   * provided in source.uri itself.
+   * @platform ios
+   */
+  allowingReadAccessToURL?: string;
 }
 
 export interface AndroidWebViewProps extends WebViewSharedProps {
@@ -478,13 +498,6 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
    * @platform android
    */
   urlPrefixesForDefaultIntent?: ReadonlyArray<string>;
-
-  /**
-   * Boolean value to enable JavaScript in the `WebView`. Used on Android only
-   * as JavaScript is enabled by default on iOS. The default value is `true`.
-   * @platform android
-   */
-  javaScriptEnabled?: boolean;
 
   /**
    * Boolean value to disable Hardware Acceleration in the `WebView`. Used on Android only
@@ -544,6 +557,13 @@ export interface WebViewSharedProps extends ViewProps {
    */
   source?: WebViewSource;
 
+  /**
+   * Boolean value to enable JavaScript in the `WebView`. Used on Android only
+   * as JavaScript is enabled by default on iOS. The default value is `true`.
+   * @platform android
+   */
+  javaScriptEnabled?: boolean;
+  
   /**
    * Function that returns a view to show if there's an error.
    */
