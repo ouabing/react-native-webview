@@ -9,18 +9,13 @@ export interface WebViewCommands {
     postMessage: Function;
     injectJavaScript: Function;
     loadUrl: Function;
+    requestFocus: Function;
 }
 export interface CustomUIManager extends UIManagerStatic {
-    getViewManagerConfig?: (name: string) => {
+    getViewManagerConfig: (name: string) => {
         Commands: WebViewCommands;
     };
     dispatchViewManagerCommand: (viewHandle: number, command: Function, params: object | null) => void;
-    RNCUIWebView: {
-        Commands: WebViewCommands;
-    };
-    RNCWKWebView: {
-        Commands: WebViewCommands;
-    };
     RNCWebView: {
         Commands: WebViewCommands;
     };
@@ -144,6 +139,7 @@ export interface WebViewNativeConfig {
 export declare type OnShouldStartLoadWithRequest = (event: WebViewNavigation) => boolean;
 export interface CommonNativeWebViewProps extends ViewProps {
     cacheEnabled?: boolean;
+    incognito?: boolean;
     injectedJavaScript?: string;
     mediaPlaybackRequiresUserAction?: boolean;
     messagingEnabled: boolean;
@@ -154,14 +150,18 @@ export interface CommonNativeWebViewProps extends ViewProps {
     onLoadingStart: (event: WebViewNavigationEvent) => void;
     onMessage: (event: WebViewMessageEvent) => void;
     onShouldStartLoadWithRequest: (event: WebViewNavigationEvent) => void;
-    scalesPageToFit?: boolean;
     showsHorizontalScrollIndicator?: boolean;
     showsVerticalScrollIndicator?: boolean;
     source: any;
     userAgent?: string;
+    /**
+     * Append to the existing user-agent. Overriden if `userAgent` is set.
+     */
+    applicationNameForUserAgent?: string;
 }
 export interface AndroidNativeWebViewProps extends CommonNativeWebViewProps {
     allowFileAccess?: boolean;
+    scalesPageToFit?: boolean;
     allowUniversalAccessFromFileURLs?: boolean;
     androidHardwareAccelerationDisabled?: boolean;
     domStorageEnabled?: boolean;
@@ -176,27 +176,23 @@ export interface AndroidNativeWebViewProps extends CommonNativeWebViewProps {
     urlPrefixesForDefaultIntent?: ReadonlyArray<string>;
 }
 export interface IOSNativeWebViewProps extends CommonNativeWebViewProps {
+    allowingReadAccessToURL?: string;
     allowsBackForwardNavigationGestures?: boolean;
     allowsInlineMediaPlayback?: boolean;
     allowsLinkPreview?: boolean;
     automaticallyAdjustContentInsets?: boolean;
     bounces?: boolean;
     contentInset?: ContentInsetProp;
+    contentInsetAdjustmentBehavior?: 'automatic' | 'scrollableAxes' | 'never' | 'always';
     dataDetectorTypes?: DataDetectorTypes | ReadonlyArray<DataDetectorTypes>;
     decelerationRate?: number;
     directionalLockEnabled?: boolean;
     hideKeyboardAccessoryView?: boolean;
-    incognito?: boolean;
     pagingEnabled?: boolean;
     scrollEnabled?: boolean;
     useSharedProcessPool?: boolean;
 }
 export interface IOSWebViewProps extends WebViewSharedProps {
-    /**
-     * If true, use WKWebView instead of UIWebView.
-     * @platform ios
-     */
-    useWebKit?: boolean;
     /**
      * Does not store any data within the lifetime of the WebView.
      */
@@ -239,6 +235,12 @@ export interface IOSWebViewProps extends WebViewSharedProps {
      * @platform ios
      */
     automaticallyAdjustContentInsets?: boolean;
+    /**
+     * This property specifies how the safe area insets are used to modify the
+     * content area of the scroll view. The default value of this property is
+     * "never". Available on iOS 11 and later.
+     */
+    contentInsetAdjustmentBehavior?: 'automatic' | 'scrollableAxes' | 'never' | 'always';
     /**
      * The amount by which the web view content is inset from the edges of
      * the scroll view. Defaults to {top: 0, left: 0, bottom: 0, right: 0}.
@@ -296,11 +298,6 @@ export interface IOSWebViewProps extends WebViewSharedProps {
      */
     useSharedProcessPool?: boolean;
     /**
-     * Append to the existing user-agent. Overriden if `userAgent` is set.
-     * @platform ios
-     */
-    applicationNameForUserAgent?: string;
-    /**
      * The custom user agent string.
      */
     userAgent?: string;
@@ -314,8 +311,8 @@ export interface IOSWebViewProps extends WebViewSharedProps {
      */
     allowsLinkPreview?: boolean;
     /**
-     * Set true if shared cookies from HTTPCookieStorage should used for every load request in the
-     * `RNCWKWebView`. The default value is `false`.
+     * Set true if shared cookies from HTTPCookieStorage should used for every load request.
+     * The default value is `false`.
      * @platform ios
      */
     sharedCookiesEnabled?: boolean;
@@ -337,6 +334,16 @@ export interface IOSWebViewProps extends WebViewSharedProps {
      * @platform ios
      */
     keyboardDisplayRequiresUserAction?: boolean;
+    /**
+     * A String value that indicates which URLs the WebView's file can then
+     * reference in scripts, AJAX requests, and CSS imports. This is only used
+     * for WebViews that are loaded with a source.uri set to a `'file://'` URL.
+     *
+     * If not provided, the default is to only allow read access to the URL
+     * provided in source.uri itself.
+     * @platform ios
+     */
+    allowingReadAccessToURL?: string;
 }
 export interface AndroidWebViewProps extends WebViewSharedProps {
     onNavigationStateChange?: (event: WebViewNavigation) => void;
@@ -352,6 +359,12 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
      * @platform android
      */
     overScrollMode?: OverScrollModeType;
+    /**
+     * Boolean that controls whether the web content is scaled to fit
+     * the view and enables the user to change the scale. The default value
+     * is `true`.
+     */
+    scalesPageToFit?: boolean;
     /**
      * Sets whether Geolocation is enabled. The default is false.
      * @platform android
@@ -382,12 +395,6 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
      * @platform android
      */
     urlPrefixesForDefaultIntent?: ReadonlyArray<string>;
-    /**
-     * Boolean value to enable JavaScript in the `WebView`. Used on Android only
-     * as JavaScript is enabled by default on iOS. The default value is `true`.
-     * @platform android
-     */
-    javaScriptEnabled?: boolean;
     /**
      * Boolean value to disable Hardware Acceleration in the `WebView`. Used on Android only
      * as Hardware Acceleration is a feature only for Android. The default value is `false`.
@@ -430,7 +437,7 @@ export interface AndroidWebViewProps extends WebViewSharedProps {
     mixedContentMode?: 'never' | 'always' | 'compatibility';
     /**
      * Sets ability to open fullscreen videos on Android devices.
-    */
+     */
     allowsFullscreenVideo?: boolean;
 }
 export interface WebViewSharedProps extends ViewProps {
@@ -438,6 +445,12 @@ export interface WebViewSharedProps extends ViewProps {
      * Loads static html or a uri (with optional headers) in the WebView.
      */
     source?: WebViewSource;
+    /**
+     * Boolean value to enable JavaScript in the `WebView`. Used on Android only
+     * as JavaScript is enabled by default on iOS. The default value is `true`.
+     * @platform android
+     */
+    javaScriptEnabled?: boolean;
     /**
      * Function that returns a view to show if there's an error.
      */
@@ -502,14 +515,6 @@ export interface WebViewSharedProps extends ViewProps {
      * shown in the `WebView`. The default value is `true`.
      */
     showsVerticalScrollIndicator?: boolean;
-    /**
-     * Boolean that controls whether the web content is scaled to fit
-     * the view and enables the user to change the scale. The default value
-     * is `true`.
-     *
-     * On iOS, when `useWebKit=true`, this prop will not work.
-     */
-    scalesPageToFit?: boolean;
     /**
      * Boolean that determines whether HTML5 audio and video requires the user
      * to tap them before they start playing. The default value is `true`.
