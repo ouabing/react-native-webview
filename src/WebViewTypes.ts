@@ -127,6 +127,8 @@ export type WebViewMessageEvent = NativeSyntheticEvent<WebViewMessage>;
 
 export type WebViewErrorEvent = NativeSyntheticEvent<WebViewError>;
 
+export type WebViewTerminatedEvent = NativeSyntheticEvent<WebViewNativeEvent>;
+
 export type WebViewHttpErrorEvent = NativeSyntheticEvent<WebViewHttpError>;
 
 export type DataDetectorTypes =
@@ -270,6 +272,7 @@ export interface IOSNativeWebViewProps extends CommonNativeWebViewProps {
   pagingEnabled?: boolean;
   scrollEnabled?: boolean;
   useSharedProcessPool?: boolean;
+  onContentProcessDidTerminate: (event: WebViewTerminatedEvent) => void;
 }
 
 export interface IOSWebViewProps extends WebViewSharedProps {
@@ -443,6 +446,12 @@ export interface IOSWebViewProps extends WebViewSharedProps {
    * @platform ios
    */
   allowingReadAccessToURL?: string;
+
+  /**
+   * Function that is invoked when the WebKit WebView content process gets terminated.
+   * @platform ios
+   */
+  onContentProcessDidTerminate: (event: WebViewTerminatedEvent) => void;
 }
 
 export interface AndroidWebViewProps extends WebViewSharedProps {

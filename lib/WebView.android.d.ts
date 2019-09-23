@@ -17,6 +17,7 @@ declare class WebView extends React.Component<AndroidWebViewProps, State> {
         originWhitelist: string[];
     };
     static isFileUploadSupported: () => Promise<any>;
+    startUrl: string | null;
     state: State;
     webViewRef: React.RefObject<NativeWebViewAndroid>;
     getCommands: () => import("./WebViewTypes").WebViewCommands;

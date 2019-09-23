@@ -37,6 +37,7 @@ static NSDictionary* customCertificatesForHost;
 @property (nonatomic, copy) RCTDirectEventBlock onHttpError;
 @property (nonatomic, copy) RCTDirectEventBlock onMessage;
 @property (nonatomic, copy) RCTDirectEventBlock onScroll;
+@property (nonatomic, copy) RCTDirectEventBlock onContentProcessDidTerminate;
 @property (nonatomic, copy) WKWebView *webView;
 @end
 
@@ -285,8 +286,8 @@ static NSDictionary* customCertificatesForHost;
   } else {
     _isFullScreenVideoOpen = NO;
     RCTUnsafeExecuteOnMainQueueSync(^{
-      [RCTSharedApplication() setStatusBarHidden:_savedStatusBarHidden animated:YES];
-      [RCTSharedApplication() setStatusBarStyle:_savedStatusBarStyle animated:YES];
+      [RCTSharedApplication() setStatusBarHidden:self->_savedStatusBarHidden animated:YES];
+      [RCTSharedApplication() setStatusBarStyle:self->_savedStatusBarStyle animated:YES];
     });
   }
 #pragma clang diagnostic pop
@@ -740,8 +741,8 @@ static NSDictionary* customCertificatesForHost;
  * topViewController
  */
 -(UIViewController *)topViewController{
-   UIViewController *controller = [self topViewControllerWithRootViewController:[self getCurrentWindow].rootViewController];
-   return controller;
+    UIViewController *controller = [self topViewControllerWithRootViewController:[self getCurrentWindow].rootViewController];
+    return controller;
 }
 
 /**
@@ -811,7 +812,7 @@ static NSDictionary* customCertificatesForHost;
     if (![self.delegate webView:self
       shouldStartLoadForRequest:event
                    withCallback:_onShouldStartLoadWithRequest]) {
-      decisionHandler(WKNavigationResponsePolicyCancel);
+      decisionHandler(WKNavigationActionPolicyCancel);
       return;
     }
   }
@@ -830,7 +831,20 @@ static NSDictionary* customCertificatesForHost;
   }
 
   // Allow all navigation by default
-  decisionHandler(WKNavigationResponsePolicyAllow);
+  decisionHandler(WKNavigationActionPolicyAllow);
+}
+
+/**
+ * Called when the web view’s content process is terminated.
+ * @see https://developer.apple.com/documentation/webkit/wknavigationdelegate/1455639-webviewwebcontentprocessdidtermi?language=objc
+ */
+- (void)webViewWebContentProcessDidTerminate:(WKWebView *)webView
+{
+  RCTLogWarn(@"Webview Process Terminated");
+  if (_onContentProcessDidTerminate) {
+    NSMutableDictionary<NSString *, id> *event = [self baseEvent];
+    _onContentProcessDidTerminate(event);
+  }
 }
 
 /**
@@ -904,7 +918,7 @@ static NSDictionary* customCertificatesForHost;
       callback([NSString stringWithFormat:@"%@", result]);
     }
     if (error != nil) {
-      RCTLogWarn([NSString stringWithFormat:@"Error evaluating injectedJavaScript: This is possibly due to an unsupported return type. Try adding true to the end of your injectedJavaScript string. %@", error]);
+      RCTLogWarn(@"%@", [NSString stringWithFormat:@"Error evaluating injectedJavaScript: This is possibly due to an unsupported return type. Try adding true to the end of your injectedJavaScript string. %@", error]);
     }
   }];
 }

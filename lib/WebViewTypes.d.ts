@@ -81,6 +81,7 @@ export declare type WebViewProgressEvent = NativeSyntheticEvent<WebViewNativePro
 export declare type WebViewNavigationEvent = NativeSyntheticEvent<WebViewNavigation>;
 export declare type WebViewMessageEvent = NativeSyntheticEvent<WebViewMessage>;
 export declare type WebViewErrorEvent = NativeSyntheticEvent<WebViewError>;
+export declare type WebViewTerminatedEvent = NativeSyntheticEvent<WebViewNativeEvent>;
 export declare type WebViewHttpErrorEvent = NativeSyntheticEvent<WebViewHttpError>;
 export declare type DataDetectorTypes = 'phoneNumber' | 'link' | 'address' | 'calendarEvent' | 'trackingNumber' | 'flightNumber' | 'lookupSuggestion' | 'none' | 'all';
 export declare type OverScrollModeType = 'always' | 'content' | 'never';
@@ -193,6 +194,7 @@ export interface IOSNativeWebViewProps extends CommonNativeWebViewProps {
     pagingEnabled?: boolean;
     scrollEnabled?: boolean;
     useSharedProcessPool?: boolean;
+    onContentProcessDidTerminate: (event: WebViewTerminatedEvent) => void;
 }
 export interface IOSWebViewProps extends WebViewSharedProps {
     /**
@@ -346,6 +348,11 @@ export interface IOSWebViewProps extends WebViewSharedProps {
      * @platform ios
      */
     allowingReadAccessToURL?: string;
+    /**
+     * Function that is invoked when the WebKit WebView content process gets terminated.
+     * @platform ios
+     */
+    onContentProcessDidTerminate: (event: WebViewTerminatedEvent) => void;
 }
 export interface AndroidWebViewProps extends WebViewSharedProps {
     onNavigationStateChange?: (event: WebViewNavigation) => void;

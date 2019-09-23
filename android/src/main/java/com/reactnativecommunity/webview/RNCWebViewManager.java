@@ -108,6 +108,7 @@ import javax.annotation.Nullable;
 @ReactModule(name = RNCWebViewManager.REACT_CLASS)
 public class RNCWebViewManager extends SimpleViewManager<WebView> {
 
+  public static String activeUrl = null;
   public static final int COMMAND_GO_BACK = 1;
   public static final int COMMAND_GO_FORWARD = 2;
   public static final int COMMAND_RELOAD = 3;
@@ -709,6 +710,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
+      activeUrl = url;
       dispatchEvent(
         view,
         new TopShouldStartLoadWithRequestEvent(
@@ -863,9 +865,18 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
     @Override
     public void onProgressChanged(WebView webView, int newProgress) {
       super.onProgressChanged(webView, newProgress);
+      final String url = webView.getUrl();
+      if (
+        url != null
+        && activeUrl != null
+        && !url.equals(activeUrl)
+      ) {
+        return;
+      }
       WritableMap event = Arguments.createMap();
       event.putDouble("target", webView.getId());
       event.putString("title", webView.getTitle());
+      event.putString("url", url);
       event.putBoolean("canGoBack", webView.canGoBack());
       event.putBoolean("canGoForward", webView.canGoForward());
       event.putDouble("progress", (float) newProgress / 100);

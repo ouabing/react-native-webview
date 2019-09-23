@@ -65,6 +65,7 @@ declare class WebView extends React.Component<IOSWebViewProps, State> {
     onMessage: (event: import("react-native").NativeSyntheticEvent<import("./WebViewTypes").WebViewMessage>) => void;
     onLoadingProgress: (event: import("react-native").NativeSyntheticEvent<import("./WebViewTypes").WebViewNativeProgressEvent>) => void;
     onShouldStartLoadWithRequestCallback: (shouldStart: boolean, _url: string, lockIdentifier: number) => void;
+    onContentProcessDidTerminate: (event: import("react-native").NativeSyntheticEvent<import("./WebViewTypes").WebViewNativeEvent>) => void;
     componentDidUpdate(prevProps: IOSWebViewProps): void;
     showRedboxOnPropChanges(prevProps: IOSWebViewProps, propName: keyof IOSWebViewProps): void;
     render(): JSX.Element;
