@@ -194,7 +194,7 @@ export interface IOSNativeWebViewProps extends CommonNativeWebViewProps {
     pagingEnabled?: boolean;
     scrollEnabled?: boolean;
     useSharedProcessPool?: boolean;
-    onContentProcessDidTerminate: (event: WebViewTerminatedEvent) => void;
+    onContentProcessDidTerminate?: (event: WebViewTerminatedEvent) => void;
 }
 export interface IOSWebViewProps extends WebViewSharedProps {
     /**
@@ -352,7 +352,7 @@ export interface IOSWebViewProps extends WebViewSharedProps {
      * Function that is invoked when the WebKit WebView content process gets terminated.
      * @platform ios
      */
-    onContentProcessDidTerminate: (event: WebViewTerminatedEvent) => void;
+    onContentProcessDidTerminate?: (event: WebViewTerminatedEvent) => void;
 }
 export interface AndroidWebViewProps extends WebViewSharedProps {
     onNavigationStateChange?: (event: WebViewNavigation) => void;
