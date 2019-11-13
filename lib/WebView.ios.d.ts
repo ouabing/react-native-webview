@@ -10,7 +10,17 @@ declare class WebView extends React.Component<IOSWebViewProps, State> {
     static isFileUploadSupported: () => Promise<boolean>;
     state: State;
     webViewRef: React.RefObject<NativeWebViewIOS>;
-    getCommands: () => import("./WebViewTypes").WebViewCommands;
+    getCommands: () => {
+        goForward: number;
+        goBack: number;
+        reload: number;
+        stopLoading: number;
+        postMessage: number;
+        injectJavaScript: number;
+        loadUrl: number;
+        requestFocus: number;
+        exitFullScreen: number;
+    };
     /**
      * Go forward one page in the web view's history.
      */

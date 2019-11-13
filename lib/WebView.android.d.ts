@@ -20,7 +20,20 @@ declare class WebView extends React.Component<AndroidWebViewProps, State> {
     startUrl: string | null;
     state: State;
     webViewRef: React.RefObject<NativeWebViewAndroid>;
-    getCommands: () => import("./WebViewTypes").WebViewCommands;
+    getCommands: () => {
+        goForward: number;
+        goBack: number;
+        reload: number;
+        stopLoading: number;
+        postMessage: number;
+        injectJavaScript: number;
+        loadUrl: number;
+        requestFocus: number;
+        exitFullScreen: number;
+        clearHistory: number;
+        clearCache: number;
+        clearFormData: number;
+    };
     exitFullScreen: () => void;
     goForward: () => void;
     goBack: () => void;
@@ -28,6 +41,9 @@ declare class WebView extends React.Component<AndroidWebViewProps, State> {
     stopLoading: () => void;
     requestFocus: () => void;
     postMessage: (data: string) => void;
+    clearFormData: () => void;
+    clearCache: (includeDiskFiles: boolean) => void;
+    clearHistory: () => void;
     /**
      * Injects a javascript string into the referenced WebView. Deliberately does not
      * return a response because using eval() to return a response breaks this method
