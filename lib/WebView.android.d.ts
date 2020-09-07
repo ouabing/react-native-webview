@@ -1,5 +1,6 @@
 import React from 'react';
-import { WebViewErrorEvent, WebViewHttpErrorEvent, WebViewMessageEvent, WebViewNavigationEvent, WebViewProgressEvent, AndroidWebViewProps, NativeWebViewAndroid, State } from './WebViewTypes';
+import { createOnShouldStartLoadWithRequest } from './WebViewShared';
+import { WebViewRenderProcessGoneEvent, WebViewErrorEvent, WebViewHttpErrorEvent, WebViewMessageEvent, WebViewNavigationEvent, WebViewProgressEvent, AndroidWebViewProps, NativeWebViewAndroid, State } from './WebViewTypes';
 /**
  * Renders a native WebView.
  */
@@ -14,11 +15,13 @@ declare class WebView extends React.Component<AndroidWebViewProps, State> {
         saveFormDataDisabled: boolean;
         cacheEnabled: boolean;
         androidHardwareAccelerationDisabled: boolean;
+        androidLayerType: string;
         originWhitelist: string[];
     };
     static isFileUploadSupported: () => Promise<any>;
     startUrl: string | null;
     state: State;
+    onShouldStartLoadWithRequest: ReturnType<typeof createOnShouldStartLoadWithRequest> | null;
     webViewRef: React.RefObject<NativeWebViewAndroid>;
     messagingModuleName: string;
     componentDidMount: () => void;
@@ -65,10 +68,11 @@ declare class WebView extends React.Component<AndroidWebViewProps, State> {
     onLoadingStart: (event: WebViewNavigationEvent) => void;
     onLoadingError: (event: WebViewErrorEvent) => void;
     onHttpError: (event: WebViewHttpErrorEvent) => void;
+    onRenderProcessGone: (event: WebViewRenderProcessGoneEvent) => void;
     onLoadingFinish: (event: WebViewNavigationEvent) => void;
     onMessage: (event: WebViewMessageEvent) => void;
     onLoadingProgress: (event: WebViewProgressEvent) => void;
-    onShouldStartLoadWithRequestCallback: (shouldStart: boolean, url: string) => void;
+    onShouldStartLoadWithRequestCallback: (shouldStart: boolean, url: string, lockIdentifier?: number | undefined) => void;
     render(): JSX.Element;
 }
 export default WebView;
